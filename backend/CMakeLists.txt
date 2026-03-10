@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION 3.16)
+project(factory_2z VERSION 1.0.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+option(BUILD_TESTS "Build unit tests" OFF)
+
+find_package(Threads REQUIRED)
+
+add_executable(${PROJECT_NAME} src/main.cpp)
+
+target_include_directories(${PROJECT_NAME} 
+    PRIVATE 
+        ${CMAKE_SOURCE_DIR}/include
+)
+
+target_link_libraries(${PROJECT_NAME} 
+    PRIVATE 
+        Threads::Threads
+)
