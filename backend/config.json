@@ -1,0 +1,13 @@
+{
+    "database": {
+        "type": "sqlite",
+        "connection_string": "sensors.db"
+    },
+    "websocket": {
+        "port": 8080
+    },
+    "mqtt": {
+        "broker_port": 1883,
+        "client_id": "factory_2z_listener"
+    }
+}

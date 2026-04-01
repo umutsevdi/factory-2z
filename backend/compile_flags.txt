@@ -1,0 +1,12 @@
+-std=c++23
+-xc++-header
+-Wall
+-Wextra
+-I
+include/
+-I
+build/_deps/mosquitto-src/include/
+-I
+build/_deps/jsoncpp-src/include/
+-I
+sqlitecpp-src/include/
