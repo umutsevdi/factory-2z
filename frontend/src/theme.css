@@ -1,0 +1,37 @@
+:root {
+  --surface-0: #0a0a0a;
+  --surface-1: #0f0f0f;
+  --surface-2: #1a1a1a;
+  --surface-3: #1f1f1f;
+  --surface-4: #2a2a2a;
+  --surface-5: #333333;
+
+  --border-1: #222222;
+  --border-2: #2a2a2a;
+  --border-3: #333333;
+  --border-4: #444444;
+
+  --text-1: rgba(255, 255, 255, 0.87);
+  --text-2: #dddddd;
+  --text-3: #aaaaaa;
+  --text-4: #888888;
+  --text-5: #666666;
+
+  --accent: #3399ff;
+  --accent-hover: #88ccff;
+  --accent-soft: rgba(51, 153, 255, 0.15);
+
+  --info: #3399ff;
+  --warning: #ffb84d;
+  --error: #ff5577;
+  --success: #4caf50;
+
+  --chart-1: #3399ff;
+  --chart-2: #ff9933;
+  --chart-3: #33cc66;
+  --chart-4: #cc66ff;
+  --chart-5: #ffcc33;
+  --chart-6: #ff5577;
+  --chart-7: #33ccff;
+  --chart-8: #aaaa55;
+}

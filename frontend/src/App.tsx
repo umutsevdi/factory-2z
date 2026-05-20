@@ -1,34 +1,50 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { useEffect, useState } from "react";
+import { Scene } from "./engine/Scene";
+import { DetailsPane } from "./components/DetailsPane";
+import { SelectionProvider } from "./state/SelectionContext";
+import { StatusBar } from "./components/StatusBar";
+import { IncidentTerminal } from "./components/IncidentTerminal";
+import { getTelemetrySource } from "./api/telemetry";
+import { warningsStore } from "./state/warningsStore";
 import "./App.css";
 
+interface SceneStatus {
+  loading: boolean;
+  error: string | null;
+  count: number;
+}
+
 function App() {
-  const [count, setCount] = useState(0);
+  const [status, setStatus] = useState<SceneStatus>({
+    loading: true,
+    error: null,
+    count: 0,
+  });
+
+  useEffect(() => {
+    return getTelemetrySource().onWarning((w) => warningsStore.push(w));
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <SelectionProvider>
+      <header className="app-header">
+        <h1>Factory 2Z Digital Twin</h1>
+        {status.error && (
+          <span className="status error">Error: {status.error}</span>
+        )}
+        {!status.error && status.loading && (
+          <span className="status">Loading scene…</span>
+        )}
+      </header>
+      <div className="app-body">
+        <div className="scene-container">
+          <Scene onStatusChange={setStatus} />
+        </div>
+        <DetailsPane />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+      <IncidentTerminal />
+      <StatusBar objectCount={status.count} />
+    </SelectionProvider>
   );
 }
 
