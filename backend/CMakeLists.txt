@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 4.0)
 project(factory_2z VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -36,6 +36,8 @@ set(WITH_XTASNESS OFF CACHE BOOL "Include XTASNESS" FORCE)
 set(WITH_DOCS OFF CACHE BOOL "Build documentation" FORCE)
 set(WITH_TESTING OFF CACHE BOOL "Build testing" FORCE)
 
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
 FetchContent_MakeAvailable(mosquitto)
 
 # WebSocket Library (uWebSockets)
@@ -49,8 +51,8 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(uSockets_content)
 
-file(GLOB_RECURSE USOCKETS_SOURCES 
-    "${usockets_content_SOURCE_DIR}/src/*.c" 
+file(GLOB_RECURSE USOCKETS_SOURCES
+    "${usockets_content_SOURCE_DIR}/src/*.c"
     "${usockets_content_SOURCE_DIR}/src/*.cpp"
 )
 add_library(uSockets ${USOCKETS_SOURCES})
@@ -81,11 +83,10 @@ FetchContent_Declare(jsoncpp
 )
 FetchContent_MakeAvailable(jsoncpp)
 
-# Database dependencies for sqlpp11 connectors
+# Database dependencies for sqlpp11 connector
 find_package(SQLite3 REQUIRED)
-find_package(PostgreSQL REQUIRED)
 
-# sqlpp11 - type-safe SQL library with SQLite3 and PostgreSQL connectors
+# sqlpp11 - type-safe SQL library with SQLite3 connector
 FetchContent_Declare(
     sqlpp11
     GIT_REPOSITORY https://github.com/rbock/sqlpp11.git
@@ -94,7 +95,7 @@ FetchContent_Declare(
 )
 
 set(BUILD_SQLITE3_CONNECTOR ON CACHE BOOL "" FORCE)
-set(BUILD_POSTGRESQL_CONNECTOR ON CACHE BOOL "" FORCE)
+set(BUILD_POSTGRESQL_CONNECTOR OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 set(DEPENDENCY_CHECK OFF CACHE BOOL "" FORCE)
 
@@ -127,7 +128,6 @@ set(LINK_LIBS
     jsoncpp_static
     sqlpp11::sqlpp11
     sqlpp11::sqlite3
-    sqlpp11::postgresql
     uWebSockets
 )
 

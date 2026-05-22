@@ -41,14 +41,11 @@ std::optional<AppConfig> load_config(const std::string& path)
 
     AppConfig config;
 
-    if (!root.isMember("database") || !root["database"].isMember("type")
-        || !root["database"].isMember("connection_string")) {
-        L_ERROR("Config missing required database fields");
+    if (!root.isMember("database") || !root["database"].isMember("path")) {
+        L_ERROR("Config missing required database.path field");
         return std::nullopt;
     }
-    config.database.type = root["database"]["type"].asString();
-    config.database.connection_string
-        = root["database"]["connection_string"].asString();
+    config.database.path = root["database"]["path"].asString();
 
     if (!root.isMember("websocket") || !root["websocket"].isMember("port")) {
         L_ERROR("Config missing required websocket.port field");

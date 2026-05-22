@@ -35,21 +35,18 @@ std::shared_ptr<MqttListener> MqttListener::create(const AppConfig& config,
     const std::map<std::string, HandlerCallback>& handlers)
 {
     auto listener = std::shared_ptr<MqttListener>(new MqttListener(config));
-    listener->_database         = std::move(database);
-    listener->_ws_server        = std::move(ws_server);
+    listener->_database         = database;
+    listener->_ws_server        = ws_server;
     listener->_handlers         = handlers;
     listener->_should_reconnect = true;
-
     if (!listener->connect(5000)) {
         return nullptr;
     }
-
     for (const auto& [topic, _] : handlers) {
         if (!listener->subscribe(topic, 1)) {
             L_ERROR("Failed to subscribe to {}", topic);
         }
     }
-
     listener->start_listening();
     return listener;
 }

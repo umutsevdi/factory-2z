@@ -195,4 +195,251 @@ struct Devices
     };
 };
 
+namespace SceneObjects_ {
+    struct Id {
+        struct _alias_t {
+            static constexpr const char _literal[] = "id";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T id;
+                T& operator()() { return id; }
+                const T& operator()() const { return id; }
+            };
+        };
+        using _traits
+            = sqlpp::make_traits<sqlpp::text, sqlpp::tag::require_insert>;
+    };
+    struct Label {
+        struct _alias_t {
+            static constexpr const char _literal[] = "label";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T label;
+                T& operator()() { return label; }
+                const T& operator()() const { return label; }
+            };
+        };
+        using _traits
+            = sqlpp::make_traits<sqlpp::text, sqlpp::tag::require_insert>;
+    };
+    struct PositionX {
+        struct _alias_t {
+            static constexpr const char _literal[] = "position_x";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T position_x;
+                T& operator()() { return position_x; }
+                const T& operator()() const { return position_x; }
+            };
+        };
+        using _traits = sqlpp::make_traits<sqlpp::floating_point,
+            sqlpp::tag::require_insert>;
+    };
+    struct PositionY {
+        struct _alias_t {
+            static constexpr const char _literal[] = "position_y";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T position_y;
+                T& operator()() { return position_y; }
+                const T& operator()() const { return position_y; }
+            };
+        };
+        using _traits = sqlpp::make_traits<sqlpp::floating_point,
+            sqlpp::tag::require_insert>;
+    };
+    struct PositionZ {
+        struct _alias_t {
+            static constexpr const char _literal[] = "position_z";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T position_z;
+                T& operator()() { return position_z; }
+                const T& operator()() const { return position_z; }
+            };
+        };
+        using _traits = sqlpp::make_traits<sqlpp::floating_point,
+            sqlpp::tag::require_insert>;
+    };
+    struct SizeX {
+        struct _alias_t {
+            static constexpr const char _literal[] = "size_x";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T size_x;
+                T& operator()() { return size_x; }
+                const T& operator()() const { return size_x; }
+            };
+        };
+        using _traits = sqlpp::make_traits<sqlpp::floating_point,
+            sqlpp::tag::require_insert>;
+    };
+    struct SizeY {
+        struct _alias_t {
+            static constexpr const char _literal[] = "size_y";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T size_y;
+                T& operator()() { return size_y; }
+                const T& operator()() const { return size_y; }
+            };
+        };
+        using _traits = sqlpp::make_traits<sqlpp::floating_point,
+            sqlpp::tag::require_insert>;
+    };
+    struct SizeZ {
+        struct _alias_t {
+            static constexpr const char _literal[] = "size_z";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T size_z;
+                T& operator()() { return size_z; }
+                const T& operator()() const { return size_z; }
+            };
+        };
+        using _traits = sqlpp::make_traits<sqlpp::floating_point,
+            sqlpp::tag::require_insert>;
+    };
+    struct RotationX {
+        struct _alias_t {
+            static constexpr const char _literal[] = "rotation_x";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T rotation_x;
+                T& operator()() { return rotation_x; }
+                const T& operator()() const { return rotation_x; }
+            };
+        };
+        using _traits = sqlpp::make_traits<sqlpp::floating_point,
+            sqlpp::tag::can_be_null>;
+    };
+    struct RotationY {
+        struct _alias_t {
+            static constexpr const char _literal[] = "rotation_y";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T rotation_y;
+                T& operator()() { return rotation_y; }
+                const T& operator()() const { return rotation_y; }
+            };
+        };
+        using _traits = sqlpp::make_traits<sqlpp::floating_point,
+            sqlpp::tag::can_be_null>;
+    };
+    struct RotationZ {
+        struct _alias_t {
+            static constexpr const char _literal[] = "rotation_z";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T rotation_z;
+                T& operator()() { return rotation_z; }
+                const T& operator()() const { return rotation_z; }
+            };
+        };
+        using _traits = sqlpp::make_traits<sqlpp::floating_point,
+            sqlpp::tag::can_be_null>;
+    };
+    struct Description {
+        struct _alias_t {
+            static constexpr const char _literal[] = "description";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T description;
+                T& operator()() { return description; }
+                const T& operator()() const { return description; }
+            };
+        };
+        using _traits
+            = sqlpp::make_traits<sqlpp::text, sqlpp::tag::require_insert>;
+    };
+    struct Metadata {
+        struct _alias_t {
+            static constexpr const char _literal[] = "metadata";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T metadata;
+                T& operator()() { return metadata; }
+                const T& operator()() const { return metadata; }
+            };
+        };
+        using _traits
+            = sqlpp::make_traits<sqlpp::text, sqlpp::tag::require_insert>;
+    };
+    struct Connections {
+        struct _alias_t {
+            static constexpr const char _literal[] = "connections";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T connections;
+                T& operator()() { return connections; }
+                const T& operator()() const { return connections; }
+            };
+        };
+        using _traits
+            = sqlpp::make_traits<sqlpp::text, sqlpp::tag::require_insert>;
+    };
+    struct TelemetryMetrics {
+        struct _alias_t {
+            static constexpr const char _literal[] = "telemetry_metrics";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T telemetry_metrics;
+                T& operator()() { return telemetry_metrics; }
+                const T& operator()() const { return telemetry_metrics; }
+            };
+        };
+        using _traits
+            = sqlpp::make_traits<sqlpp::text, sqlpp::tag::require_insert>;
+    };
+    struct MqttDeviceId {
+        struct _alias_t {
+            static constexpr const char _literal[] = "mqtt_device_id";
+            using _name_t
+                = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+            template <typename T> struct _member_t {
+                T mqtt_device_id;
+                T& operator()() { return mqtt_device_id; }
+                const T& operator()() const { return mqtt_device_id; }
+            };
+        };
+        using _traits
+            = sqlpp::make_traits<sqlpp::text, sqlpp::tag::can_be_null>;
+    };
+} // namespace SceneObjects_
+
+struct SceneObjects
+    : sqlpp::table_t<SceneObjects, SceneObjects_::Id, SceneObjects_::Label,
+          SceneObjects_::PositionX, SceneObjects_::PositionY,
+          SceneObjects_::PositionZ, SceneObjects_::SizeX, SceneObjects_::SizeY,
+          SceneObjects_::SizeZ, SceneObjects_::RotationX,
+          SceneObjects_::RotationY, SceneObjects_::RotationZ,
+          SceneObjects_::Description, SceneObjects_::Metadata,
+          SceneObjects_::Connections, SceneObjects_::TelemetryMetrics,
+          SceneObjects_::MqttDeviceId> {
+    struct _alias_t {
+        static constexpr const char _literal[] = "scene_objects";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+        template <typename T> struct _member_t {
+            T scene_objects;
+            T& operator()() { return scene_objects; }
+            const T& operator()() const { return scene_objects; }
+        };
+    };
+};
+
 } // namespace f2z::db

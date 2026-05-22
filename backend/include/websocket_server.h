@@ -9,6 +9,8 @@
 #include <mutex>
 #include <string>
 #include <thread>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace f2z {
@@ -31,18 +33,22 @@ public:
     [[nodiscard]] int port() const noexcept;
     [[nodiscard]] std::size_t client_count() const noexcept;
 
-    void broadcast(const std::string& message);
-    void broadcast_json(const std::string& type, const std::string& topic,
-        const std::string& payload);
+    void send_telemetry(const std::string& object_id,
+        const std::unordered_map<std::string, double>& metrics);
+    void send_warning(const std::string& warning_json);
 
 private:
     explicit WebSocketServer(int port);
-    struct PerSocketData { };
+    struct PerSocketData {
+        std::unordered_set<std::string> subscribed_ids;
+    };
 
     using WebSocketType = uWS::WebSocket<false, true, PerSocketData>;
 
     void run_server(std::promise<void>& ready_promise);
     void handle_client_message(WebSocketType* ws, std::string_view message);
+    void handle_subscribe(WebSocketType* ws, const Json::Value& root);
+    void handle_unsubscribe(WebSocketType* ws, const Json::Value& root);
     void add_client(WebSocketType* ws);
     void remove_client(WebSocketType* ws);
 
@@ -51,6 +57,8 @@ private:
     std::atomic<bool> _should_stop { false };
     std::thread _server_thread;
     std::unique_ptr<uWS::App> _app;
+    uWS::Loop* _loop { nullptr };
+    us_listen_socket_t* _listen_socket { nullptr };
 
     std::vector<WebSocketType*> _clients;
     mutable std::mutex _clients_mutex;

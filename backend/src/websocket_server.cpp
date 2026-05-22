@@ -29,8 +29,10 @@ static std::string get_current_timestamp()
 
 WebSocketServer::WebSocketServer(int port)
     : _port(port)
-    , _app(std::make_unique<uWS::App>())
 {
+    // NOTE: _app is intentionally NOT constructed here. uWS::App must be
+    // created on the same thread that runs its event loop, so it is created
+    // inside run_server() which executes on _server_thread.
 }
 
 std::shared_ptr<WebSocketServer> WebSocketServer::create(
@@ -105,17 +107,33 @@ void WebSocketServer::start()
 void WebSocketServer::stop()
 {
     if (!_running) {
+        if (_server_thread.joinable()) {
+            _server_thread.join();
+        }
         return;
     }
     _should_stop = true;
-    {
-        std::lock_guard<std::mutex> lock(_clients_mutex);
-        for (auto* ws : _clients) {
-            if (ws) {
-                ws->close();
+
+    // All uWS state (clients, listen socket) must be touched on the loop
+    // thread. Defer cleanup there so .run() returns cleanly.
+    if (_loop) {
+        _loop->defer([this]() {
+            std::vector<WebSocketType*> clients_copy;
+            {
+                std::lock_guard<std::mutex> lock(_clients_mutex);
+                clients_copy = _clients;
+                _clients.clear();
             }
-        }
-        _clients.clear();
+            for (auto* ws : clients_copy) {
+                if (ws) {
+                    ws->close();
+                }
+            }
+            if (_listen_socket) {
+                us_listen_socket_close(0, _listen_socket);
+                _listen_socket = nullptr;
+            }
+        });
     }
 
     if (_server_thread.joinable()) {
@@ -135,55 +153,72 @@ std::size_t WebSocketServer::client_count() const noexcept
     return _clients.size();
 }
 
-void WebSocketServer::broadcast(const std::string& message)
+void WebSocketServer::send_telemetry(const std::string& object_id,
+    const std::unordered_map<std::string, double>& metrics)
 {
-    if (!_running) {
+    if (!_running || !_loop) {
         return;
     }
 
-    std::vector<WebSocketType*> clients_copy;
-    {
-        std::lock_guard<std::mutex> lock(_clients_mutex);
-        clients_copy = _clients;
-    }
-
-    for (auto* ws : clients_copy) {
-        if (ws) {
-            ws->send(message, uWS::OpCode::TEXT);
-        }
-    }
-}
-
-void WebSocketServer::broadcast_json(const std::string& type,
-    const std::string& topic, const std::string& payload)
-{
+    // JSON serialization is pure CPU work; do it on the caller thread.
     Json::Value root;
-    root["type"]      = type;
+    root["type"]      = "telemetry";
     root["timestamp"] = get_current_timestamp();
-    root["topic"]     = topic;
-
-    Json::CharReaderBuilder builder;
-    std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-    Json::Value payload_json;
-    std::string errs;
-
-    if (reader->parse(payload.c_str(), payload.c_str() + payload.size(),
-            &payload_json, &errs)) {
-        root["payload"] = payload_json;
-    } else {
-        root["payload"] = payload;
+    root["objectId"]  = object_id;
+    for (const auto& [name, value] : metrics) {
+        root["metrics"][name] = value;
     }
 
     Json::StreamWriterBuilder writer_builder;
     writer_builder["indentation"] = "";
     std::string json_str          = Json::writeString(writer_builder, root);
 
-    broadcast(json_str);
+    // All uWS socket interaction must happen on the loop thread.
+    _loop->defer([this, json_str = std::move(json_str), object_id]() mutable {
+        std::vector<WebSocketType*> clients_copy;
+        {
+            std::lock_guard<std::mutex> lock(_clients_mutex);
+            clients_copy = _clients;
+        }
+        for (auto* ws : clients_copy) {
+            if (!ws)
+                continue;
+            auto* data = ws->getUserData();
+            if (data && data->subscribed_ids.count(object_id) > 0) {
+                ws->send(json_str, uWS::OpCode::TEXT);
+            }
+        }
+    });
+}
+
+void WebSocketServer::send_warning(const std::string& warning_json)
+{
+    if (!_running || !_loop) {
+        return;
+    }
+
+    _loop->defer([this, warning_json]() {
+        std::vector<WebSocketType*> clients_copy;
+        {
+            std::lock_guard<std::mutex> lock(_clients_mutex);
+            clients_copy = _clients;
+        }
+        for (auto* ws : clients_copy) {
+            if (ws) {
+                ws->send(warning_json, uWS::OpCode::TEXT);
+            }
+        }
+    });
 }
 
 void WebSocketServer::run_server(std::promise<void>& ready_promise)
 {
-    _app->ws<PerSocketData>("/*",
+    // Construct the uWS::App on this thread so it binds to this thread's
+    // uSockets loop. Capture the loop for cross-thread defer() calls.
+    _app  = std::make_unique<uWS::App>();
+    _loop = uWS::Loop::get();
+
+    _app->ws<PerSocketData>("/telemetry",
             { .open =
                     [this](auto* ws) {
                         add_client(ws);
@@ -203,6 +238,27 @@ void WebSocketServer::run_server(std::promise<void>& ready_promise)
                             "WebSocket client disconnected. Total clients: {}",
                             client_count());
                     } })
+        .get("/api/scene",
+            [this](auto* res, auto* req) {
+                (void)req;
+                if (!_database) {
+                    res->writeStatus("500 Internal Server Error")
+                        ->end("{\"error\":\"Service unavailable\"}");
+                    return;
+                }
+                auto scene_opt = _database->get_scene();
+                if (!scene_opt) {
+                    res->writeStatus("500 Internal Server Error")
+                        ->end("{\"error\":\"Failed to load scene\"}");
+                    return;
+                }
+                Json::StreamWriterBuilder writer_builder;
+                writer_builder["indentation"] = "";
+                std::string json_response
+                    = Json::writeString(writer_builder, *scene_opt);
+                res->writeHeader("Content-Type", "application/json")
+                    ->end(json_response);
+            })
         .get("/test",
             [](auto* res, auto* req) {
                 (void)req;
@@ -253,6 +309,7 @@ void WebSocketServer::run_server(std::promise<void>& ready_promise)
         .listen(_port,
             [this, &ready_promise](auto* listen_socket) {
                 if (listen_socket) {
+                    _listen_socket = listen_socket;
                     L_INFO("WebSocket server listening on port {}", _port);
                     _running = true;
                     ready_promise.set_value();
@@ -263,6 +320,12 @@ void WebSocketServer::run_server(std::promise<void>& ready_promise)
                 }
             })
         .run();
+
+    // .run() returned: the loop has been told to exit. Release the App on
+    // this same thread to satisfy uWS thread-affinity invariants.
+    _running       = false;
+    _listen_socket = nullptr;
+    _app.reset();
 }
 
 void WebSocketServer::handle_client_message(
@@ -287,6 +350,45 @@ void WebSocketServer::handle_client_message(
             std::string json_str = Json::writeString(writer_builder, response);
 
             ws->send(json_str, uWS::OpCode::TEXT);
+        } else if (type == "subscribe") {
+            handle_subscribe(ws, root);
+        } else if (type == "unsubscribe") {
+            handle_unsubscribe(ws, root);
+        }
+    }
+}
+
+void WebSocketServer::handle_subscribe(
+    WebSocketType* ws, const Json::Value& root)
+{
+    if (!root.isMember("objectIds") || !root["objectIds"].isArray()) {
+        return;
+    }
+    auto* data = ws->getUserData();
+    if (!data)
+        return;
+
+    for (const auto& id : root["objectIds"]) {
+        if (id.isString()) {
+            data->subscribed_ids.insert(id.asString());
+        }
+    }
+    L_INFO("Client subscribed to {} objects", data->subscribed_ids.size());
+}
+
+void WebSocketServer::handle_unsubscribe(
+    WebSocketType* ws, const Json::Value& root)
+{
+    if (!root.isMember("objectIds") || !root["objectIds"].isArray()) {
+        return;
+    }
+    auto* data = ws->getUserData();
+    if (!data)
+        return;
+
+    for (const auto& id : root["objectIds"]) {
+        if (id.isString()) {
+            data->subscribed_ids.erase(id.asString());
         }
     }
 }
