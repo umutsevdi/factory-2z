@@ -28,7 +28,7 @@ function App() {
   return (
     <SelectionProvider>
       <header className="app-header">
-        <h1>Factory 2Z Digital Twin</h1>
+        <h1>Factory2Z</h1>
         {status.error && (
           <span className="status error">Error: {status.error}</span>
         )}

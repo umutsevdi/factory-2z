@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Text } from "@react-three/drei";
 import type { ThreeEvent } from "@react-three/fiber";
 import type { SceneObject as SceneObjectData } from "../types/scene";
 import { theme } from "../theme";
@@ -42,16 +43,27 @@ export function SceneObject({ object, selected, onSelect }: Props) {
   };
 
   return (
-    <mesh
-      position={[position.x, position.y, position.z]}
-      rotation={rotation ? [rotation.x, rotation.y, rotation.z] : [0, 0, 0]}
-      onClick={handleClick}
-      onPointerOver={handlePointerOver}
-      onPointerOut={handlePointerOut}
-      userData={{ objectId: object.id, size }}
-    >
-      <boxGeometry args={[size.x, size.y, size.z]} />
-      <meshBasicMaterial color={color} wireframe />
-    </mesh>
+    <>
+      <Text
+        position={[position.x, position.y + size.y / 2 + 0.15, position.z]}
+        fontSize={0.12}
+        color={selected ? theme.object.selected : theme.text.t1}
+        anchorX="center"
+        anchorY="middle"
+      >
+        {object.label}
+      </Text>
+      <mesh
+        position={[position.x, position.y, position.z]}
+        rotation={rotation ? [rotation.x, rotation.y, rotation.z] : [0, 0, 0]}
+        onClick={handleClick}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
+        userData={{ objectId: object.id, size }}
+      >
+        <boxGeometry args={[size.x, size.y, size.z]} />
+        <meshBasicMaterial color={color} wireframe />
+      </mesh>
+    </>
   );
 }

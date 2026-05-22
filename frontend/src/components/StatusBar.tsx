@@ -42,9 +42,7 @@ export function StatusBar({ objectCount }: Props) {
       <span className={`status-dot ${stateClass}`} aria-hidden />
       <span className="status-bar-state">{stateLabel}</span>
       <span className="status-bar-sep">·</span>
-      <span className="status-bar-source">
-        {status.kind === "mock" ? "Mock" : "WS"}
-      </span>
+      <span className="status-bar-source">WS</span>
       <span className="status-bar-sep">·</span>
       <span className="status-bar-lastmsg">{lastMsgLabel}</span>
       <span className="status-bar-spacer" />

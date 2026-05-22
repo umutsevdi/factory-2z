@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSelection } from "../state/useSelection";
 import { sceneObjectsStore } from "../state/sceneObjectsStore";
 import type { SceneObject } from "../types/scene";
@@ -7,6 +7,7 @@ import { TelemetryPanel } from "./TelemetryPanel";
 export function DetailsPane() {
   const { selectedIds, clear } = useSelection();
   const ids = useMemo(() => [...selectedIds], [selectedIds]);
+  const [activeTab, setActiveTab] = useState(0);
 
   const objects = useMemo(
     () =>
@@ -20,6 +21,10 @@ export function DetailsPane() {
     () => objects.map((o) => ({ id: o.id, label: o.label })),
     [objects]
   );
+
+  if (objects.length > 1 && activeTab >= objects.length) {
+    setActiveTab(0);
+  }
 
   return (
     <aside className="details-pane">
@@ -36,11 +41,28 @@ export function DetailsPane() {
         <p className="details-empty">Select an object to see details.</p>
       ) : (
         <>
-          <div className="details-cards">
-            {objects.map((obj) => (
-              <ObjectDetailCard key={obj.id} obj={obj} />
-            ))}
-          </div>
+          {objects.length > 1 ? (
+            <>
+              <div className="details-tabs">
+                {objects.map((obj, i) => (
+                  <button
+                    key={obj.id}
+                    className={`details-tab ${i === activeTab ? "active" : ""}`}
+                    onClick={() => setActiveTab(i)}
+                  >
+                    {obj.label}
+                  </button>
+                ))}
+              </div>
+              <ObjectDetailCard obj={objects[activeTab]} />
+            </>
+          ) : (
+            <div className="details-cards">
+              {objects.map((obj) => (
+                <ObjectDetailCard key={obj.id} obj={obj} />
+              ))}
+            </div>
+          )}
           <TelemetryPanel objects={telemetryObjects} />
         </>
       )}

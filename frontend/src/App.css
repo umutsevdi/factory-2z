@@ -121,6 +121,41 @@ body {
   margin-top: 1rem;
 }
 
+.details-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 1rem;
+  margin-bottom: 0.75rem;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border-3);
+  padding-bottom: 0.25rem;
+}
+
+.details-tab {
+  background: var(--surface-4);
+  border: 1px solid var(--border-3);
+  border-bottom: none;
+  color: var(--text-3);
+  border-radius: 4px 4px 0 0;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.details-tab:hover {
+  background: var(--surface-5);
+  color: var(--text-2);
+}
+
+.details-tab.active {
+  background: var(--surface-card);
+  color: var(--text-1);
+  border-color: var(--border-2);
+  border-bottom: 1px solid var(--surface-card);
+  margin-bottom: -1px;
+}
+
 .details-card {
   background: var(--surface-card);
   border: 1px solid var(--border-2);
@@ -254,7 +289,7 @@ body {
 
 .incident-terminal {
   flex-shrink: 0;
-  height: 160px;
+  height: 400px;
   display: flex;
   flex-direction: column;
   background: var(--surface-0);
