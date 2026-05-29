@@ -1,7 +1,6 @@
 {
     "database": {
-        "type": "sqlite",
-        "connection_string": "sensors.db"
+        "path": "sensors.db"
     },
     "websocket": {
         "port": 8080

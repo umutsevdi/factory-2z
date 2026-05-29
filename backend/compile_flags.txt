@@ -10,3 +10,7 @@ build/_deps/mosquitto-src/include/
 build/_deps/jsoncpp-src/include/
 -I
 sqlitecpp-src/include/
+-I
+sqlpp11-src/include/
+-I
+uwebsockets_content-src/src/
